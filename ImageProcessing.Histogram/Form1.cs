@@ -12,8 +12,10 @@ namespace ImageProcessing.Histogram
 {
     public partial class Form1 : Form
     {
+        private readonly Histogram _histogram;
         public Form1()
         {
+            _histogram = new Histogram();
             InitializeComponent();
         }
 
@@ -22,7 +24,7 @@ namespace ImageProcessing.Histogram
             toolStripStatusLabel1.Text = "Opening";
             if (dOpen.ShowDialog() != DialogResult.OK) return;
             picBox1.Image = new Bitmap(dOpen.OpenFile(), true);
-            filepath = dOpen.FileName;
+            _histogram.filepath = dOpen.FileName;
             picBox11.Image = null;
             picBox2.Image = null;
             picBox22.Image = null;
@@ -40,23 +42,23 @@ namespace ImageProcessing.Histogram
             try
             {
 
-                long[] myValues = GetHistogram(new Bitmap(picBox1.Image));
+                long[] myValues = _histogram.GetHistogram(new Bitmap(picBox1.Image));
 
                 //maxVal = (int)myValues[0];
                 double tempMax = myValues[0];
-                int.TryParse(Math.Round(tempMax).ToString(), out maxVal);
+                int.TryParse(Math.Round(tempMax).ToString(), out _histogram.maxVal);
 
                 for (int i = 1; i < myValues.Length; i++)
                 {
-                    if (myValues[i] > maxVal)
+                    if (myValues[i] > _histogram.maxVal)
                     {
                         tempMax = myValues[i];
-                        int.TryParse(Math.Round(tempMax).ToString(), out maxVal);
+                        int.TryParse(Math.Round(tempMax).ToString(), out _histogram.maxVal);
                         //maxVal = (int)myValues[i];
                     }
                 }
 
-                drawHistro(myValues, 1);
+                _histogram.DrawHistro(myValues, 1, this.picBox11, this.picBox22);
                 button3.Enabled = true;
                 toolStripStatusLabel1.Text = "Click Contrast Streching";
             }
@@ -71,8 +73,8 @@ namespace ImageProcessing.Histogram
         {
             try
             {
-                long[] myValues = GetHistogram(new Bitmap(picBox2.Image));
-                drawHistro(myValues, 2);
+                long[] myValues = _histogram.GetHistogram(new Bitmap(picBox2.Image));
+                _histogram.DrawHistro(myValues, 2, this.picBox11, this.picBox22);
                 toolStripStatusLabel1.Text = "Ready";
             }
             catch (NullReferenceException)
@@ -89,7 +91,9 @@ namespace ImageProcessing.Histogram
 
         private void button3_Click(object sender, EventArgs e)
         {
-            setContrast();
+            int num;
+            int.TryParse(tbval.Text.ToString(), out num);
+            picBox2.Image = _histogram.SetContrast(num);
             picBox22.Image = null;
             button4.Enabled = true;
             toolStripStatusLabel1.Text = "Click Get Histogram";

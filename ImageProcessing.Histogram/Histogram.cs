@@ -17,8 +17,8 @@ namespace ImageProcessing.Histogram
         long[] myHistogramG = new long[256];
         long[] myHistogramB = new long[256];
 
-        int maxVal;
-        String filepath;
+        public int maxVal;
+        public string filepath;
 
         public long[] GetHistogram(System.Drawing.Bitmap picture)
         {
@@ -109,7 +109,7 @@ namespace ImageProcessing.Histogram
         }
 
 
-        private void drawHistro(long[] myValues, int boxNo)
+        public void DrawHistro(long[] myValues, int boxNo, PictureBox pictureBox1, PictureBox pictureBox2)
         {
             Pen skyBluePen = new Pen(Brushes.Black);
             long[] newValues = new long[256];
@@ -119,8 +119,8 @@ namespace ImageProcessing.Histogram
                 int deff = 0;
                 double temp = 0;
                 temp = (double)myValues[jj];
-                temp = temp / maxVal;
-                temp = temp * 200;
+                temp /= maxVal;
+                temp *= 200;
                 int.TryParse(Math.Round(temp).ToString(), out deff);
                 newValues[jj] = deff;
                 //newValues[jj] = (int)temp;
@@ -134,7 +134,7 @@ namespace ImageProcessing.Histogram
 
             if (boxNo == 1)
             {
-                Graphics g = picBox11.CreateGraphics();
+                Graphics g = pictureBox1.CreateGraphics();
                 for (int i = 0; i < myValues.Length; i++)
                 {
                     g.DrawLine(skyBluePen, i, 199, i, (200 - (int)newValues[i]));
@@ -143,7 +143,7 @@ namespace ImageProcessing.Histogram
 
             else if (boxNo == 2)
             {
-                Graphics gg = picBox22.CreateGraphics();
+                Graphics gg = pictureBox2.CreateGraphics();
                 for (int i = 0; i < myValues.Length; i++)
                 {
                     gg.DrawLine(skyBluePen, i, 199, i, (200 - (int)newValues[i]));
@@ -152,29 +152,29 @@ namespace ImageProcessing.Histogram
             skyBluePen.Dispose();
         }
 
-        private void setContrast()
+        public Bitmap SetContrast(int value)
         {
+            Bitmap b = new Bitmap(filepath, true);
+
             try
             {
                 int newBr = 0, newBg = 0, newBb = 0;
                 int newAr = 0, newAg = 0, newAb = 0;
                 int range = oldD - oldC;
                 double pVal;
-                int num;
-                int.TryParse(tbval.Text.ToString(), out num);
+
                 //int.TryParse (newAval.Text.ToString (), out num);
-                num -= 50;
-                pVal = num / 100.00;
+                value -= 50;
+                pVal = value / 100.00;
                 double val = range * pVal;
-                int prec;
-                int.TryParse(Math.Round(val).ToString(), out prec);
+                int.TryParse(Math.Round(val).ToString(), out int prec);
                 newBr = oldDr + prec;
                 newAr = oldCr - prec;
                 newBg = oldDg + prec;
                 newAg = oldCg - prec;
                 newBb = oldDb + prec;
                 newAb = oldCb - prec;
-                Bitmap b = new Bitmap(filepath, true);
+                
                 int newRed = 0, newGreen = 0, newBlue = 0;
 
                 for (int i = 0; i < b.Width; i++)
@@ -205,12 +205,13 @@ namespace ImageProcessing.Histogram
                         b.SetPixel(i, j, Color.FromArgb(newRed, newGreen, newBlue));
                     }
                 }
-                picBox2.Image = b;
             }
             catch (Exception es)
             {
                 MessageBox.Show("Image missing. " + es.Message);
             }
+
+            return b;
         }
     }
 }
